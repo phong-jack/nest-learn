@@ -21,7 +21,9 @@ export class AppController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   uploadImage(@UploadedFile() file: Express.Multer.File) {
-    return this.cloudinaryService.uploadFile(file);
+    const folderName = 'Images';
+
+    return this.cloudinaryService.uploadFile(file, folderName);
   }
 
   // @Post('uploads')
@@ -34,6 +36,7 @@ export class AppController {
   @Post('uploads')
   @UseInterceptors(FilesInterceptor('photos', 5))
   uploadMultiple(@UploadedFiles() files: Express.Multer.File[]) {
-    return this.cloudinaryService.uploadFiles(files);
+    const folderName = 'Images';
+    return this.cloudinaryService.uploadFiles(files, folderName);
   }
 }
