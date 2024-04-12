@@ -1,45 +1,54 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
+  HttpException,
   HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   ParseIntPipe,
   Patch,
   Post,
   Req,
   Res,
+  UploadedFile,
+  UseFilters,
+  UseInterceptors,
+  UsePipes,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { UsersService } from 'src/users/services/users.service/users.service';
 import { Response as ResponseType } from 'src/utils/enums/response.enum';
 import { UpdateUsersDto } from '../dtos/UpdateUser.dto';
 import { CreateUsersDto } from '../dtos/CreateUser.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import LocalFilesInterceptor from 'src/interceptors/localFile.interceptor';
+import { UsersService } from '../../services/users.service/users.service';
+import { CloudinaryService } from 'src/modules/cloudinary/cloudinary.service';
 
 @ApiTags('user')
 @Controller('user')
 export class UserController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Get('')
   @ApiOperation({ summary: 'Create user' })
-  public async findAll(@Res() res: Response) {
-    try {
-      const users = await this.usersService.findAll();
-      return res.status(HttpStatus.OK).json({
-        type: ResponseType.SUCCESS,
-        message: 'Get list user success!',
-        data: users || [],
-      });
-    } catch (error) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        type: ResponseType.ERROR,
-        message: 'Something went wrong, Please try again later',
-        data: null,
-      });
-    }
+  public async findAll() {
+    const users = await this.usersService.findAll();
+
+    // return res.status(HttpStatus.OK).json({
+    //   type: ResponseType.SUCCESS,
+    //   message: 'Get list user success!',
+    //   data: users || [],
+    // });
+    return users;
   }
 
   @Get(':id')
@@ -98,11 +107,12 @@ export class UserController {
         data: user,
       });
     } catch (error) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        type: ResponseType.ERROR,
-        message: error.message,
-        data: null,
-      });
+      // return res.status(HttpStatus.BAD_REQUEST).json({
+      //   type: ResponseType.ERROR,
+      //   message: error.message,
+      //   data: null,
+      // });
+      throw new BadRequestException('kakfas');
     }
   }
 
@@ -126,5 +136,31 @@ export class UserController {
         data: null,
       });
     }
+  }
+
+  //upload and image for one user into cloudinary
+  @Post('upload/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const response = await this.cloudinaryService.uploadFile(file);
+    return this.usersService.addAvatarToCloud(id, response);
+  }
+
+  //upload and image for one user into localstore
+  @Post('avatar/:id')
+  @UseInterceptors(
+    LocalFilesInterceptor({
+      fieldName: 'file',
+      path: '/avatars',
+    }),
+  )
+  async addAvatar(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.usersService.addAvatar(id, file.path);
   }
 }

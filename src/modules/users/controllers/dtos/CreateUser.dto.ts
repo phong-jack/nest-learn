@@ -9,6 +9,7 @@ export class CreateUsersDto {
   @IsNotEmpty()
   readonly firstName: string;
 
+  @ApiProperty({ example: 'Phong', description: 'The lastName of user' })
   @IsString()
   @IsNotEmpty()
   readonly lastName: string;
