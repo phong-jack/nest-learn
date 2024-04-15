@@ -12,11 +12,11 @@ export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @ApiProperty({ example: 'Ngô', description: 'The firstName of user' })
+  @ApiProperty()
   @Column({ nullable: true, length: 50 })
   firstName?: string;
 
-  @ApiProperty({ example: 'Phong', description: 'The lastName of user' })
+  @ApiProperty()
   @Column({ nullable: true, length: 50 })
   lastName?: string;
 

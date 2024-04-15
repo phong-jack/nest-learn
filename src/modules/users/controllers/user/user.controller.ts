@@ -3,13 +3,9 @@ import {
   Body,
   Controller,
   Delete,
-  FileTypeValidator,
   Get,
-  HttpException,
   HttpStatus,
-  MaxFileSizeValidator,
   Param,
-  ParseFilePipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -20,7 +16,7 @@ import {
   UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { Response as ResponseType } from 'src/utils/enums/response.enum';
 import { UpdateUsersDto } from '../dtos/UpdateUser.dto';
 import { CreateUsersDto } from '../dtos/CreateUser.dto';
@@ -29,6 +25,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import LocalFilesInterceptor from 'src/interceptors/localFile.interceptor';
 import { UsersService } from '../../services/users.service/users.service';
 import { CloudinaryService } from 'src/modules/cloudinary/cloudinary.service';
+import { SuccessResponse } from 'src/core/http.success.response';
 
 @ApiTags('user')
 @Controller('user')
@@ -40,15 +37,12 @@ export class UserController {
 
   @Get('')
   @ApiOperation({ summary: 'Create user' })
-  public async findAll() {
+  public async findAll(@Res() res: Response) {
     const users = await this.usersService.findAll();
-
-    // return res.status(HttpStatus.OK).json({
-    //   type: ResponseType.SUCCESS,
-    //   message: 'Get list user success!',
-    //   data: users || [],
-    // });
-    return users;
+    new SuccessResponse({
+      message: 'Get list user success!',
+      data: users,
+    }).send(res);
   }
 
   @Get(':id')
@@ -58,11 +52,10 @@ export class UserController {
   ) {
     try {
       const user = await this.usersService.findById(id);
-      return res.status(HttpStatus.CREATED).json({
-        type: ResponseType.SUCCESS,
-        message: 'Get user success!',
+      new SuccessResponse({
+        message: 'Get  user success!',
         data: user,
-      });
+      }).send(res);
     } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         type: ResponseType.ERROR,
@@ -107,11 +100,6 @@ export class UserController {
         data: user,
       });
     } catch (error) {
-      // return res.status(HttpStatus.BAD_REQUEST).json({
-      //   type: ResponseType.ERROR,
-      //   message: error.message,
-      //   data: null,
-      // });
       throw new BadRequestException('kakfas');
     }
   }

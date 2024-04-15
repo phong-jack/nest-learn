@@ -4,12 +4,11 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
-import { UserRepository } from '../../repositories/user.repository';
 import { CreateUsersDto } from '../../controllers/dtos/CreateUser.dto';
 import { User } from '../../entities/user.entity';
 import { UpdateUsersDto } from '../../controllers/dtos/UpdateUser.dto';
 import { CloudinaryResponse } from 'src/modules/cloudinary/cloudinary-response';
+import { UserRepository } from 'src/modules/users/repositories/user.repository';
 
 @Injectable()
 export class UsersService {
@@ -45,7 +44,7 @@ export class UsersService {
       const user = await this.userRepository.findById(id);
       console.log('Check: ', user.fullName);
       if (!user) {
-        throw new Error('User not found!');
+        throw new BadRequestException('User not found!');
       }
       return user;
     } catch (error) {

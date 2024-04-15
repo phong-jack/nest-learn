@@ -3,9 +3,9 @@ import { UsersService } from './services/users.service/users.service';
 import { UserController } from './controllers/user/user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { UserRepository } from './repositories/user.repository';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { UserRepository } from './repositories/user.repository';
 
 @Module({
   imports: [
