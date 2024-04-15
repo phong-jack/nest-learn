@@ -40,9 +40,31 @@ export class UserRepository {
   }
 
   public async addAvatar(id: number, image: string): Promise<User> {
-    const user = await this.findById(id);
+    const user = await this.userRepository.find({ where: { id } });
     if (!user) return undefined;
     await this.userRepository.update(id, { image: image });
     return await this.findById(id);
+  }
+
+  public async findByUsername(username: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { username: username },
+    });
+    if (!user) return null;
+    return user;
+  }
+
+  public async createNewUser(
+    username: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+  ) {
+    return await this.userRepository.save({
+      username: username,
+      password: password,
+      firstName: firstName,
+      lastName: lastName,
+    });
   }
 }

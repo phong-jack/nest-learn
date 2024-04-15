@@ -8,7 +8,7 @@ import { CreateUsersDto } from '../../controllers/dtos/CreateUser.dto';
 import { User } from '../../entities/user.entity';
 import { UpdateUsersDto } from '../../controllers/dtos/UpdateUser.dto';
 import { CloudinaryResponse } from 'src/modules/cloudinary/cloudinary-response';
-import { UserRepository } from 'src/modules/users/repositories/user.repository';
+import { UserRepository } from '../../repositories/user.repository';
 
 @Injectable()
 export class UsersService {
@@ -101,5 +101,23 @@ export class UsersService {
       );
       throw new Error(error.message);
     }
+  }
+
+  public async findByUsername(username: string) {
+    return await this.userRepository.findByUsername(username);
+  }
+
+  public async createNewUser(
+    username: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+  ) {
+    return await this.userRepository.createNewUser(
+      username,
+      password,
+      firstName,
+      lastName,
+    );
   }
 }

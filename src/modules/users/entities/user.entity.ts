@@ -1,4 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
 import {
   BaseEntity,
   Column,
@@ -12,11 +11,9 @@ export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @ApiProperty()
   @Column({ nullable: true, length: 50 })
   firstName?: string;
 
-  @ApiProperty()
   @Column({ nullable: true, length: 50 })
   lastName?: string;
 
@@ -31,4 +28,10 @@ export class User extends BaseEntity {
 
   @Column({ default: true })
   isActive?: boolean;
+
+  @Column()
+  username: string;
+
+  @Column()
+  password: string;
 }

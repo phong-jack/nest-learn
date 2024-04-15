@@ -7,6 +7,7 @@ import { User } from './modules/users/entities/user.entity';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksService } from './cronjob/cronjob.example';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { TasksService } from './cronjob/cronjob.example';
     }),
     UsersModule,
     CloudinaryModule,
+    AuthModule,
   ],
-  providers: [TasksService],
+  // providers: [TasksService],
 })
 export class AppModule {}

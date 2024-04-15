@@ -9,24 +9,23 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Req,
   Res,
   UploadedFile,
-  UseFilters,
   UseInterceptors,
-  UsePipes,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { Response as ResponseType } from 'src/utils/enums/response.enum';
 import { UpdateUsersDto } from '../dtos/UpdateUser.dto';
 import { CreateUsersDto } from '../dtos/CreateUser.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import LocalFilesInterceptor from 'src/interceptors/localFile.interceptor';
 import { UsersService } from '../../services/users.service/users.service';
 import { CloudinaryService } from 'src/modules/cloudinary/cloudinary.service';
 import { SuccessResponse } from 'src/core/http.success.response';
+import { Public } from 'src/modules/auth/decorators/public.decorator';
 
+@ApiBearerAuth()
 @ApiTags('user')
 @Controller('user')
 export class UserController {
@@ -35,8 +34,9 @@ export class UserController {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
+  @Public()
   @Get('')
-  @ApiOperation({ summary: 'Create user' })
+  @ApiOperation({ summary: 'Get list user' })
   public async findAll(@Res() res: Response) {
     const users = await this.usersService.findAll();
     new SuccessResponse({
