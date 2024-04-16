@@ -14,12 +14,14 @@ import { AuthService } from './auth.service';
 import { SignInDto } from './dtos/SignIn.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { SignUpDto } from './dtos/SignUp.dto';
+import { Public } from './decorators/public.decorator';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public()
   @Post('login')
   async signIn(@Res() res: Response, @Body() signInDto: SignInDto) {
     new SuccessResponse({
@@ -31,6 +33,8 @@ export class AuthController {
       ),
     }).send(res);
   }
+
+  @Public()
   @Post('register')
   async signUp(@Res() res: Response, @Body() signUpDto: SignUpDto) {
     new SuccessResponse({
@@ -46,7 +50,7 @@ export class AuthController {
   }
 
   @Get('profile')
-  getProfile(@Req() req) {
+  getProfile() {
     console.log('check user:: ', req.user);
     return req.user;
   }

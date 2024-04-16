@@ -34,7 +34,6 @@ export class UserController {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  @Public()
   @Get('')
   @ApiOperation({ summary: 'Get list user' })
   public async findAll(@Res() res: Response) {
