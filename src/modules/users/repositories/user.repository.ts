@@ -3,6 +3,8 @@ import { User } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUsersDto } from '../controllers/dtos/CreateUser.dto';
 import { UpdateUsersDto } from '../controllers/dtos/UpdateUser.dto';
+import { CreateUserDto } from '../controllers/dtos/create-user.dto';
+import { UpdateUserDto } from '../controllers/dtos/update-user.dto';
 
 export class UserRepository {
   constructor(
@@ -18,14 +20,14 @@ export class UserRepository {
     return this.userRepository.findOneBy({ id: id });
   }
 
-  public async store(user: CreateUsersDto): Promise<User> {
+  public async store(user: CreateUserDto): Promise<User> {
     const newUser = this.userRepository.create(user);
     return this.userRepository.save(newUser);
   }
 
   public async updateOne(
     id: number,
-    updateUserDto: UpdateUsersDto,
+    updateUserDto: UpdateUserDto,
   ): Promise<User | undefined> {
     const user = await this.userRepository.findBy({ id });
     if (!user) return undefined;

@@ -1,11 +1,11 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { UnauthorizedException } from 'src/core/http.exception';
-import { jwtConstant } from './constants';
 import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from './decorators/public.decorator';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
+//Chuyen qua xai access-token-guard va refresh-token-guard
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
@@ -23,14 +23,15 @@ export class AuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    console.log('check req:: ', request.headers);
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       throw new UnauthorizedException();
     }
+    console.log('check token', token);
+
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: jwtConstant.secret,
+        secret: 'hello world!',
       });
       request['user'] = payload;
     } catch {

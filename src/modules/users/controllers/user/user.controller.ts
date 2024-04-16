@@ -11,6 +11,7 @@ import {
   Post,
   Res,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -24,7 +25,11 @@ import { UsersService } from '../../services/users.service/users.service';
 import { CloudinaryService } from 'src/modules/cloudinary/cloudinary.service';
 import { SuccessResponse } from 'src/core/http.success.response';
 import { Public } from 'src/modules/auth/decorators/public.decorator';
+import { CreateUserDto } from '../dtos/create-user.dto';
+import { UpdateUserDto } from '../dtos/update-user.dto';
+import { AccessTokenGuard } from 'src/modules/auth/guards/accessToken.guard';
 
+@UseGuards(AccessTokenGuard)
 @ApiBearerAuth()
 @ApiTags('user')
 @Controller('user')
@@ -67,7 +72,7 @@ export class UserController {
   @Post('create')
   public async create(
     @Res() res: Response,
-    @Body() createUserDto: CreateUsersDto,
+    @Body() createUserDto: CreateUserDto,
   ) {
     try {
       const user = await this.usersService.create(createUserDto);
@@ -89,7 +94,7 @@ export class UserController {
   public async update(
     @Res() res: Response,
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateUserDto: UpdateUsersDto,
+    @Body() updateUserDto: UpdateUserDto,
   ) {
     try {
       const user = await this.usersService.update(id, updateUserDto);

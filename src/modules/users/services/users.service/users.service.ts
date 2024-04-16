@@ -4,11 +4,12 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common';
-import { CreateUsersDto } from '../../controllers/dtos/CreateUser.dto';
 import { User } from '../../entities/user.entity';
 import { UpdateUsersDto } from '../../controllers/dtos/UpdateUser.dto';
 import { CloudinaryResponse } from 'src/modules/cloudinary/cloudinary-response';
 import { UserRepository } from '../../repositories/user.repository';
+import { CreateUserDto } from '../../controllers/dtos/create-user.dto';
+import { UpdateUserDto } from '../../controllers/dtos/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -30,7 +31,7 @@ export class UsersService {
     }
   }
 
-  async create(user: CreateUsersDto): Promise<User> {
+  async create(user: CreateUserDto): Promise<User> {
     try {
       return this.userRepository.store(user);
     } catch (error) {
@@ -55,7 +56,7 @@ export class UsersService {
     }
   }
 
-  async update(id: number, updateUserDto: UpdateUsersDto): Promise<User> {
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     try {
       return await this.userRepository.updateOne(id, updateUserDto);
     } catch (error) {

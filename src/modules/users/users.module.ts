@@ -6,6 +6,9 @@ import { User } from './entities/user.entity';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { UserRepository } from './repositories/user.repository';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { AuthModule } from '../auth/auth.module';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -14,7 +17,7 @@ import { UserRepository } from './repositories/user.repository';
     CloudinaryModule,
   ],
   controllers: [UserController],
-  providers: [UsersService, UserRepository, CloudinaryService],
+  providers: [UsersService, UserRepository, JwtService],
   exports: [UsersService, TypeOrmModule],
 })
 export class UsersModule {}
