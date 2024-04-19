@@ -19,32 +19,35 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async signIn(username: string, password: string) {
-    const user = await this.usersService.findByUsername(username);
-    if (user?.password !== password) {
-      throw new UnauthorizedException('Wrong password!');
-    }
-    const payload = { sub: user.id, username: user.username };
+  // async signIn(signInDto: SignInDto) {
+  //   const user = await this.usersService.findByUsername(signInDto.username);
+  //   if (!user) {
+  //     throw new UnauthorizedException('User not found!');
+  //   }
+  //   if (user?.password !== signInDto.password) {
+  //     throw new UnauthorizedException('Wrong password!');
+  //   }
 
-    return {
-      accessToken: await this.jwtService.signAsync(payload),
-    };
-  }
+  //   return {
+  //     accessToken: await this.jwtService.signAsync(user),
+  //     user,
+  //   };
+  // }
 
-  async signUp(
-    username: string,
-    password: string,
-    firstName: string,
-    lastName: string,
-  ) {
-    const user = await this.usersService.createNewUser(
-      username,
-      password,
-      firstName,
-      lastName,
-    );
-    return user;
-  }
+  // async signUp(
+  //   username: string,
+  //   password: string,
+  //   firstName: string,
+  //   lastName: string,
+  // ) {
+  //   const user = await this.usersService.createNewUser(
+  //     username,
+  //     password,
+  //     firstName,
+  //     lastName,
+  //   );
+  //   return user;
+  // }
 
   //sign up v2 Là sign up của access + refresh token
   async signUpV2(createUserDto: CreateUserDto): Promise<any> {
@@ -55,16 +58,21 @@ export class AuthService {
     if (userExists) {
       throw new BadRequestException('User already exists');
     }
-
     const hash = await this.hashData(createUserDto.password);
     const newUser = await this.usersService.create({
       ...createUserDto,
       password: hash,
     });
-
-    const tokens = await this.getTokens(newUser.id, newUser.username);
+    const tokens = await this.getTokens(
+      newUser.id,
+      newUser.username,
+      newUser.role,
+    );
     await this.updateRefreshToken(newUser.id, tokens.refreshToken);
-    return tokens;
+    return {
+      tokens,
+      newUser,
+    };
   }
 
   async signInV2(data: SignInDto) {
@@ -73,9 +81,12 @@ export class AuthService {
     const passwordMatches = await argon2.verify(user.password, data.password);
     if (!passwordMatches)
       throw new BadRequestException('Password is incorrect!');
-    const tokens = await this.getTokens(user.id, user.username);
+    const tokens = await this.getTokens(user.id, user.username, user.role);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
-    return tokens;
+    return {
+      tokens,
+      user,
+    };
   }
 
   async refreshTokens(userId: number, refreshToken: string) {
@@ -87,7 +98,7 @@ export class AuthService {
       refreshToken,
     );
     if (!refreshTokenMatches) throw new ForbiddenException('Token not valid');
-    const tokens = await this.getTokens(user.id, user.username);
+    const tokens = await this.getTokens(user.id, user.username, user.role);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
@@ -100,10 +111,10 @@ export class AuthService {
     return argon2.hash(data);
   }
 
-  async getTokens(userId: number, username: string) {
+  async getTokens(userId: number, username: string, role: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
-        { sub: userId, username },
+        { sub: userId, username, role },
         {
           secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
           expiresIn: '15m',
@@ -113,6 +124,7 @@ export class AuthService {
         {
           sub: userId,
           username,
+          role,
         },
         {
           secret: this.configService.get<string>('JWT_REFRESH_SECRET'),

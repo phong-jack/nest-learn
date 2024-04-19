@@ -1,8 +1,6 @@
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUsersDto } from '../controllers/dtos/CreateUser.dto';
-import { UpdateUsersDto } from '../controllers/dtos/UpdateUser.dto';
 import { CreateUserDto } from '../controllers/dtos/create-user.dto';
 import { UpdateUserDto } from '../controllers/dtos/update-user.dto';
 

@@ -1,3 +1,4 @@
+import { Role } from 'src/modules/auth/interface/user.interface';
 import {
   BaseEntity,
   Column,
@@ -17,11 +18,11 @@ export class User extends BaseEntity {
   @Column({ nullable: true, length: 50 })
   lastName?: string;
 
-  @VirtualColumn({
-    query: (alias) =>
-      `SELECT CONCAT (${alias}.firstName, ' ', ${alias}.lastName) AS fullName`,
-  })
-  fullName: string;
+  // @VirtualColumn({
+  //   query: (alias) =>
+  //     `SELECT CONCAT (${alias}.firstName, ' ', ${alias}.lastName) AS fullName`,
+  // })
+  // fullName: string;
 
   @Column({ nullable: true })
   image: string;
@@ -34,6 +35,9 @@ export class User extends BaseEntity {
 
   @Column()
   password: string;
+
+  @Column({ enum: Role, type: 'enum' })
+  role: Role;
 
   @Column({ nullable: true })
   refreshToken: string;

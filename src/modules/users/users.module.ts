@@ -8,7 +8,6 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { UserRepository } from './repositories/user.repository';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthModule } from '../auth/auth.module';
-import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -17,7 +16,7 @@ import { JwtService } from '@nestjs/jwt';
     CloudinaryModule,
   ],
   controllers: [UserController],
-  providers: [UsersService, UserRepository, JwtService],
+  providers: [UsersService, UserRepository],
   exports: [UsersService, TypeOrmModule],
 })
 export class UsersModule {}

@@ -5,7 +5,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import { User } from '../../entities/user.entity';
-import { UpdateUsersDto } from '../../controllers/dtos/UpdateUser.dto';
 import { CloudinaryResponse } from 'src/modules/cloudinary/cloudinary-response';
 import { UserRepository } from '../../repositories/user.repository';
 import { CreateUserDto } from '../../controllers/dtos/create-user.dto';
@@ -22,8 +21,6 @@ export class UsersService {
       if (users?.length === 0) {
         throw new Error('No record found!');
       }
-      // throw new Error('chowi chieu');
-
       return users;
     } catch (error) {
       this.logger.log(`UserService:findAll : ${JSON.stringify(error.message)}`);
@@ -43,7 +40,6 @@ export class UsersService {
   async findById(id: number): Promise<User> {
     try {
       const user = await this.userRepository.findById(id);
-      console.log('Check: ', user.fullName);
       if (!user) {
         throw new BadRequestException('User not found!');
       }

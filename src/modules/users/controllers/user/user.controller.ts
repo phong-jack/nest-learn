@@ -18,7 +18,14 @@ import { Response } from 'express';
 import { Response as ResponseType } from 'src/utils/enums/response.enum';
 import { UpdateUsersDto } from '../dtos/UpdateUser.dto';
 import { CreateUsersDto } from '../dtos/CreateUser.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import LocalFilesInterceptor from 'src/interceptors/localFile.interceptor';
 import { UsersService } from '../../services/users.service/users.service';
@@ -28,6 +35,12 @@ import { Public } from 'src/modules/auth/decorators/public.decorator';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { UpdateUserDto } from '../dtos/update-user.dto';
 import { AccessTokenGuard } from 'src/modules/auth/guards/accessToken.guard';
+import { FullNameInterceptor } from '../../interceptors/fullname.interceptor';
+import { CustomResponeInterceptor } from '../../interceptors/customResponse.interceptor';
+import { Role } from 'src/modules/auth/interface/user.interface';
+import { Roles } from 'src/modules/auth/decorators/roles.decorator';
+import { RoleGuard } from 'src/modules/auth/guards/role.guard';
+import { ApiCustomResponse } from 'src/core/apiResponse.decorator';
 
 @UseGuards(AccessTokenGuard)
 @ApiBearerAuth()
@@ -40,13 +53,20 @@ export class UserController {
   ) {}
 
   @Get('')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Get all usersfd sucess!!!!',
+  })
   @ApiOperation({ summary: 'Get list user' })
-  public async findAll(@Res() res: Response) {
-    const users = await this.usersService.findAll();
-    new SuccessResponse({
-      message: 'Get list user success!',
-      data: users,
-    }).send(res);
+  @Roles(Role.User)
+  @ApiCustomResponse({
+    message: 'Get user success!',
+    statusCode: HttpStatus.OK,
+  })
+  @UseGuards(RoleGuard)
+  @UseInterceptors(CustomResponeInterceptor)
+  public async findAll() {
+    return await this.usersService.findAll();
   }
 
   @Get(':id')
@@ -132,6 +152,19 @@ export class UserController {
 
   //upload and image for one user into cloudinary
   @Post('upload/:id')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['file'],
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(
     @Param('id', ParseIntPipe) id: number,
