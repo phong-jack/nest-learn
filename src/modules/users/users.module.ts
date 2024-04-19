@@ -8,12 +8,14 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { UserRepository } from './repositories/user.repository';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AuthModule } from '../auth/auth.module';
+import { CaslModule } from '../casl/casl.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([UserRepository]),
     CloudinaryModule,
+    CaslModule,
   ],
   controllers: [UserController],
   providers: [UsersService, UserRepository],

@@ -41,6 +41,14 @@ import { Role } from 'src/modules/auth/interface/user.interface';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { RoleGuard } from 'src/modules/auth/guards/role.guard';
 import { ApiCustomResponse } from 'src/core/apiResponse.decorator';
+import {
+  AppAbility,
+  CaslAbilityFactory,
+} from 'src/modules/casl/casl-ability.factory';
+import { PoliciesGuard } from 'src/modules/casl/guards/policy.guard';
+import { CheckPolicies } from 'src/modules/casl/decorator/casl.decorator';
+import { Action } from 'src/modules/casl/constant/casl.constant';
+import { User } from '../../entities/user.entity';
 
 @UseGuards(AccessTokenGuard)
 @ApiBearerAuth()
@@ -50,6 +58,7 @@ export class UserController {
   constructor(
     private readonly usersService: UsersService,
     private readonly cloudinaryService: CloudinaryService,
+    private caslAbilityFactory: CaslAbilityFactory,
   ) {}
 
   @Get('')
@@ -63,7 +72,9 @@ export class UserController {
     message: 'Get user success!',
     statusCode: HttpStatus.OK,
   })
-  @UseGuards(RoleGuard)
+  // @UseGuards(RoleGuard)
+  @UseGuards(PoliciesGuard)
+  @CheckPolicies((ability: AppAbility) => ability.can(Action.Read, User))
   @UseInterceptors(CustomResponeInterceptor)
   public async findAll() {
     return await this.usersService.findAll();

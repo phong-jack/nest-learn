@@ -8,6 +8,7 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksService } from './cronjob/cronjob.example';
 import { AuthModule } from './modules/auth/auth.module';
+import { CaslModule } from './modules/casl/casl.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AuthModule } from './modules/auth/auth.module';
     UsersModule,
     CloudinaryModule,
     AuthModule,
+    CaslModule,
   ],
   // providers: [TasksService],
 })
