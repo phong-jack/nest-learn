@@ -13,6 +13,10 @@ export class CreateUserDto {
   @IsString()
   username: string;
 
+  @ApiProperty({ example: 'username1@gmail.com', description: 'Your email !' })
+  @IsEmail()
+  email: string;
+
   @ApiProperty({ example: '123456', description: 'The password of user' })
   password: string;
 
@@ -32,4 +36,6 @@ export class CreateUserDto {
   role: Role;
 
   refreshToken?: string;
+
+  isActive?: boolean;
 }

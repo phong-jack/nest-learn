@@ -49,6 +49,7 @@ import { PoliciesGuard } from 'src/modules/casl/guards/policy.guard';
 import { CheckPolicies } from 'src/modules/casl/decorator/casl.decorator';
 import { Action } from 'src/modules/casl/constant/casl.constant';
 import { User } from '../../entities/user.entity';
+import { ActiveUserGuard } from 'src/modules/auth/guards/activedUser.guard';
 
 @UseGuards(AccessTokenGuard)
 @ApiBearerAuth()
@@ -122,18 +123,20 @@ export class UserController {
   }
 
   @Patch('update/:id')
+  @ApiOperation({ summary: 'update user info' })
+  @ApiCustomResponse({
+    message: 'User update oke!',
+    statusCode: HttpStatus.OK,
+  })
+  @UseGuards(ActiveUserGuard)
+  @UseInterceptors(CustomResponeInterceptor)
   public async update(
-    @Res() res: Response,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     try {
       const user = await this.usersService.update(id, updateUserDto);
-      return res.status(HttpStatus.ACCEPTED).json({
-        type: ResponseType.SUCCESS,
-        message: 'User update oke!',
-        data: user,
-      });
+      return user;
     } catch (error) {
       throw new BadRequestException('kakfas');
     }

@@ -9,6 +9,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TasksService } from './cronjob/cronjob.example';
 import { AuthModule } from './modules/auth/auth.module';
 import { CaslModule } from './modules/casl/casl.module';
+import { MailModule } from './modules/mail/mail.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { CaslModule } from './modules/casl/casl.module';
       load: [configuration],
       cache: true,
     }),
+    EventEmitterModule.forRoot(),
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
@@ -36,6 +39,7 @@ import { CaslModule } from './modules/casl/casl.module';
     CloudinaryModule,
     AuthModule,
     CaslModule,
+    MailModule,
   ],
   // providers: [TasksService],
 })

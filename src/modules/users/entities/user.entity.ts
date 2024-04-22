@@ -18,20 +18,17 @@ export class User extends BaseEntity {
   @Column({ nullable: true, length: 50 })
   lastName?: string;
 
-  // @VirtualColumn({
-  //   query: (alias) =>
-  //     `SELECT CONCAT (${alias}.firstName, ' ', ${alias}.lastName) AS fullName`,
-  // })
-  // fullName: string;
-
   @Column({ nullable: true })
   image: string;
 
-  @Column({ default: true })
+  @Column({ default: false })
   isActive?: boolean;
 
   @Column()
   username: string;
+
+  @Column()
+  email: string;
 
   @Column()
   password: string;

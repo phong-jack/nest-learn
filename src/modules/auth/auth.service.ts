@@ -4,12 +4,14 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { UsersService } from '../users/services/users.service/users.service';
-import { UnauthorizedException } from 'src/core/http.exception';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../users/controllers/dtos/create-user.dto';
 import argon2 from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { SignInDto } from './dtos/SignIn.dto';
+import { MailService } from '../mail/mail.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UserCreatedEvent } from './events/user-created.event';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +19,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   // async signIn(signInDto: SignInDto) {
@@ -67,11 +70,20 @@ export class AuthService {
       newUser.id,
       newUser.username,
       newUser.role,
+      newUser.isActive,
     );
+    const mailToken = await this.getMailToken(newUser.id, newUser.username);
     await this.updateRefreshToken(newUser.id, tokens.refreshToken);
+
+    this.eventEmitter.emit(
+      'userCreated',
+      new UserCreatedEvent(newUser, mailToken),
+    );
+    console.log('check event:: ', 'chay khong biet?');
+
     return {
+      user: newUser,
       tokens,
-      newUser,
     };
   }
 
@@ -81,7 +93,12 @@ export class AuthService {
     const passwordMatches = await argon2.verify(user.password, data.password);
     if (!passwordMatches)
       throw new BadRequestException('Password is incorrect!');
-    const tokens = await this.getTokens(user.id, user.username, user.role);
+    const tokens = await this.getTokens(
+      user.id,
+      user.username,
+      user.role,
+      user.isActive,
+    );
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return {
       tokens,
@@ -98,7 +115,12 @@ export class AuthService {
       refreshToken,
     );
     if (!refreshTokenMatches) throw new ForbiddenException('Token not valid');
-    const tokens = await this.getTokens(user.id, user.username, user.role);
+    const tokens = await this.getTokens(
+      user.id,
+      user.username,
+      user.role,
+      user.isActive,
+    );
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
@@ -111,10 +133,15 @@ export class AuthService {
     return argon2.hash(data);
   }
 
-  async getTokens(userId: number, username: string, role: string) {
+  async getTokens(
+    userId: number,
+    username: string,
+    role: string,
+    isActive: boolean,
+  ) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
-        { sub: userId, username, role },
+        { sub: userId, username, role, isActive },
         {
           secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
           expiresIn: '15m',
@@ -139,10 +166,38 @@ export class AuthService {
     };
   }
 
+  async getMailToken(userId: number, username: string) {
+    const mailToken = await this.jwtService.signAsync(
+      {
+        sub: userId,
+        username,
+      },
+      { secret: 'mailsecret', expiresIn: '30s' },
+    );
+
+    return mailToken;
+  }
+
   async updateRefreshToken(userId: number, refreshToken: string) {
     const hashedRefreshToken = await this.hashData(refreshToken);
     await this.usersService.update(userId, {
       refreshToken: hashedRefreshToken,
     });
+  }
+
+  async activeUser(userId: number) {
+    const userActive = await this.usersService.update(userId, {
+      isActive: true,
+    });
+    return userActive;
+  }
+
+  async decodeToken(token: string) {
+    try {
+      const decodedToken = await this.jwtService.decode(token);
+      return decodedToken;
+    } catch (error) {
+      throw new Error('Error decoding token');
+    }
   }
 }

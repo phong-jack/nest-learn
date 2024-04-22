@@ -33,6 +33,7 @@ export class UserRepository {
       id: id,
       ...updateUserDto,
     });
+    return await this.userRepository.findOne({ where: { id } });
   }
 
   public async delete(id: number): Promise<void> {

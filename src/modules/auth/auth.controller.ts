@@ -1,14 +1,17 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   HttpStatus,
   Post,
+  Query,
+  Redirect,
   Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Request, Response, query } from 'express';
 import { SuccessResponse } from 'src/core/http.success.response';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dtos/SignIn.dto';
@@ -84,5 +87,14 @@ export class AuthController {
     const userId = req.user['sub'];
     const refreshToken = req.user['refreshToken'];
     return this.authService.refreshTokens(userId, refreshToken);
+  }
+
+  @Get('active')
+  async activeUser(@Query() query: any) {
+    const token = decodeURIComponent(query.token);
+    if (!token) throw new ForbiddenException('Token is none!');
+    const decodedUser = await this.authService.decodeToken(token);
+    await this.authService.activeUser(decodedUser.sub);
+    return 'Active ok!';
   }
 }
