@@ -8,7 +8,6 @@ export class MailService {
 
   async sendUserConfirmation(user: User, token: string) {
     const url = `http://localhost:3000/api/auth/active?token=` + token;
-    console.log('check send mail ', user, '\n token', token);
     try {
       const res = await this.mailerService.sendMail({
         to: user.email,

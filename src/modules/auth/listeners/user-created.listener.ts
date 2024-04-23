@@ -7,8 +7,9 @@ import { UserCreatedEvent } from '../events/user-created.event';
 export class UserCreatedListener {
   constructor(private mailService: MailService) {}
 
-  @OnEvent('userCreated', { async: true })
+  @OnEvent('user.create', { async: true })
   async handleUserCreatedEvent(event: UserCreatedEvent) {
+    console.log('Chạy');
     await this.mailService.sendUserConfirmation(event.user, event.token);
   }
 }

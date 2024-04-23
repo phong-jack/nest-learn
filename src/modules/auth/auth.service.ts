@@ -76,7 +76,7 @@ export class AuthService {
     await this.updateRefreshToken(newUser.id, tokens.refreshToken);
 
     this.eventEmitter.emit(
-      'userCreated',
+      'user.create',
       new UserCreatedEvent(newUser, mailToken),
     );
     console.log('check event:: ', 'chay khong biet?');
