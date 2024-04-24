@@ -7,9 +7,16 @@ import { AccessTokenStrategy } from './strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from './strategies/refreshToken.strategy';
 import { MailModule } from '../mail/mail.module';
 import { UserCreatedListener } from './listeners/user-created.listener';
+import { BullModule } from '@nestjs/bullmq';
+import { AuthProcessor } from './auth.processor';
 
 @Module({
-  imports: [UsersModule, JwtModule.register({}), MailModule],
+  imports: [
+    UsersModule,
+    JwtModule.register({}),
+    MailModule,
+    BullModule.registerQueue({ name: 'auth' }),
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,
@@ -17,6 +24,7 @@ import { UserCreatedListener } from './listeners/user-created.listener';
     RefreshTokenStrategy,
     JwtService,
     UserCreatedListener,
+    AuthProcessor,
   ],
 })
 export class AuthModule {}

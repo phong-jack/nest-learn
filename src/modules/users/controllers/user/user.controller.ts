@@ -50,8 +50,9 @@ import { CheckPolicies } from 'src/modules/casl/decorator/casl.decorator';
 import { Action } from 'src/modules/casl/constant/casl.constant';
 import { User } from '../../entities/user.entity';
 import { ActiveUserGuard } from 'src/modules/auth/guards/activedUser.guard';
+import { ApplyCircuitBreaker } from 'src/interceptors/apply-circuit-breaker.interceptor';
 
-@UseGuards(AccessTokenGuard)
+// @UseGuards(AccessTokenGuard)
 @ApiBearerAuth()
 @ApiTags('user')
 @Controller('user')
@@ -166,6 +167,11 @@ export class UserController {
 
   //upload and image for one user into cloudinary
   @Post('upload/:id')
+  @ApplyCircuitBreaker({
+    successThreshold: 5,
+    failureThreshold: 5,
+    openToHalfOpenWaitTime: 60000,
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

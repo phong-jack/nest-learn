@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # MySQL service
   mysql:
-    image: mysql:latest
+    image: mysql
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: test
@@ -22,35 +22,48 @@ services:
 
   # Redis service
   redis:
-    image: redis:latest
+    container_name: redis
+    image: redis:alpine
+    expose:
+      - 6379
     ports:
       - '6379:6379'
-
-  # Elasticsearch service
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    restart: unless-stopped
+  redis_commander:
+    container_name: redis_commander
+    image: rediscommander/redis-commander:latest
     environment:
-      - discovery.type=single-node
+      - REDIS_HOSTS=local:redis:6379
     ports:
-      - '9200:9200'
+      - '8088:8081'
+    depends_on:
+      - redis
+
+  # # Elasticsearch service
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+  #   environment:
+  #     - discovery.type=single-node
+  #   ports:
+  #     - '9200:9200'
 
   # NestJS app service
-  nestjs_app:
-    build: .
-    ports:
-      - '3000:3000'
-    depends_on:
-      - mysql
-    environment:
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_USER: root
-      DB_PASSWORD: 123456
-      DB_NAME: test
-      MAIL_HOST: smtp.gmail.email
-      MAIL_USER: ngotienphong053@gmail.com
-      MAIL_PASSWORD: vfymtszpryzvqxqd
-      MAIL_FROM: noreply@gmail.com
+  # nestjs_app:
+  #   build: .
+  #   ports:
+  #     - '3000:3000'
+  #   depends_on:
+  #     - mysql
+  #   environment:
+  #     DB_HOST: mysql
+  #     DB_PORT: 3306
+  #     DB_USER: root
+  #     DB_PASSWORD: 123456
+  #     DB_NAME: test
+  #     MAIL_HOST: smtp.gmail.email
+  #     MAIL_USER: ngotienphong053@gmail.com
+  #     MAIL_PASSWORD: vfymtszpryzvqxqd
+  #     MAIL_FROM: noreply@gmail.com
 
 # Define volumes
 volumes:

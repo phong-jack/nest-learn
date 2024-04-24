@@ -9,9 +9,11 @@ import { CreateUserDto } from '../users/controllers/dtos/create-user.dto';
 import argon2 from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { SignInDto } from './dtos/SignIn.dto';
-import { MailService } from '../mail/mail.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserCreatedEvent } from './events/user-created.event';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { SendMailDto } from '../mail/dtos/send-mail.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,8 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private eventEmitter: EventEmitter2,
+    @InjectQueue('auth')
+    private readonly authQueue: Queue,
   ) {}
 
   // async signIn(signInDto: SignInDto) {
@@ -75,11 +79,13 @@ export class AuthService {
     const mailToken = await this.getMailToken(newUser.id, newUser.username);
     await this.updateRefreshToken(newUser.id, tokens.refreshToken);
 
-    this.eventEmitter.emit(
-      'user.create',
-      new UserCreatedEvent(newUser, mailToken),
-    );
-    console.log('check event:: ', 'chay khong biet?');
+    // this.eventEmitter.emit(
+    //   'user.create',
+    //   new UserCreatedEvent(newUser, mailToken),
+    // );
+    // switch to use bull mq
+    const sendMailData: SendMailDto = { user: newUser, token: mailToken };
+    await this.authQueue.add('send-mail', sendMailData, { delay: 3000 });
 
     return {
       user: newUser,

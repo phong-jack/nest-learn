@@ -21,6 +21,7 @@ import { CreateUserDto } from '../users/controllers/dtos/create-user.dto';
 import { UpdateUserDto } from '../users/controllers/dtos/update-user.dto';
 import { AccessTokenGuard } from './guards/accessToken.guard';
 import { RefreshTokenGuard } from './guards/refreshToken.guard';
+import { ApplyCircuitBreaker } from 'src/interceptors/apply-circuit-breaker.interceptor';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -66,6 +67,11 @@ export class AuthController {
   }
 
   @Post('signin')
+  @ApplyCircuitBreaker({
+    successThreshold: 5,
+    failureThreshold: 5,
+    openToHalfOpenWaitTime: 60000,
+  })
   signInV2(@Body() data: SignInDto) {
     return this.authService.signInV2(data);
   }

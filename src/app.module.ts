@@ -11,6 +11,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CaslModule } from './modules/casl/casl.module';
 import { MailModule } from './modules/mail/mail.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -33,6 +34,15 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
         entities: [User],
         synchronize: true,
         autoLoadEntities: true,
+      }),
+    }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        connection: {
+          host: configService.get('REDIS_HOST'),
+          port: configService.get('REDIS_PORT'),
+        },
       }),
     }),
     UsersModule,
