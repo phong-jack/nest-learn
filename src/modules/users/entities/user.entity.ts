@@ -19,7 +19,7 @@ export class User extends BaseEntity {
   lastName?: string;
 
   @Column({ nullable: true })
-  image: string;
+  image?: string;
 
   @Column({ default: false })
   isActive?: boolean;
@@ -28,13 +28,19 @@ export class User extends BaseEntity {
   username: string;
 
   @Column()
-  email: string;
+  email?: string;
 
-  @Column()
-  password: string;
+  @Column({ default: 'proivder3rdaccout' })
+  password?: string;
 
   @Column({ enum: Role, type: 'enum' })
   role: Role;
+
+  @Column({ nullable: true })
+  provider: string;
+
+  @Column({ nullable: true })
+  providerId: string;
 
   @Column({ nullable: true })
   refreshToken: string;

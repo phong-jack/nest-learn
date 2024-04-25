@@ -19,6 +19,6 @@ export class RoleGuard implements CanActivate {
 
   matchRoles(roles: string[], userRole: string) {
     //chỉ cần 1 role hợp lệ trong dãy roles này!
-    return roles.some((role) => userRole);
+    return roles.some((role) => userRole === role);
   }
 }

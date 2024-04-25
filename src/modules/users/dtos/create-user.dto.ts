@@ -18,24 +18,26 @@ export class CreateUserDto {
   email: string;
 
   @ApiProperty({ example: '123456', description: 'The password of user' })
-  password: string;
+  password?: string;
 
   @ApiProperty({ example: 'Phong', description: 'firstname of user' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(10)
-  firstName: string;
+  firstName?: string;
 
   @ApiProperty({ example: 'Ngô', description: 'lastName of user' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(10)
-  lastName: string;
+  lastName?: string;
 
   @ApiProperty({ enum: Role, description: 'User role', default: Role.User })
-  role: Role;
+  role?: Role;
 
+  image?: string;
+  provider?: string;
+  providerId?: string;
   refreshToken?: string;
-
   isActive?: boolean;
 }

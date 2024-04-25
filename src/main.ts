@@ -12,6 +12,7 @@ async function bootstrap() {
     .setDescription('User api decription!')
     .setVersion('1.0')
     .addTag('user')
+    .addTag('auth')
     .addBearerAuth()
     .build();
 

@@ -18,8 +18,6 @@ export class CustomResponeInterceptor implements NestInterceptor {
     context: ExecutionContext,
     next: CallHandler<any>,
   ): Observable<any> | Promise<Observable<any>> {
-    console.log('check reflector', this.reflector);
-
     const customResponse = this.reflector.get(
       'customResponse',
       context.getHandler(),

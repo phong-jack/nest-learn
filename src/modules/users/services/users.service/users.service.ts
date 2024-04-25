@@ -7,8 +7,8 @@ import {
 import { User } from '../../entities/user.entity';
 import { CloudinaryResponse } from 'src/modules/cloudinary/cloudinary-response';
 import { UserRepository } from '../../repositories/user.repository';
-import { CreateUserDto } from '../../controllers/dtos/create-user.dto';
-import { UpdateUserDto } from '../../controllers/dtos/update-user.dto';
+import { CreateUserDto } from '../../dtos/create-user.dto';
+import { UpdateUserDto } from '../../dtos/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -116,5 +116,9 @@ export class UsersService {
       firstName,
       lastName,
     );
+  }
+
+  async findOrCreate(createUserDto: CreateUserDto): Promise<any> {
+    return await this.userRepository.findOrCreate(createUserDto);
   }
 }

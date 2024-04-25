@@ -1,8 +1,8 @@
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserDto } from '../controllers/dtos/create-user.dto';
-import { UpdateUserDto } from '../controllers/dtos/update-user.dto';
+import { CreateUserDto } from '../dtos/create-user.dto';
+import { UpdateUserDto } from '../dtos/update-user.dto';
 
 export class UserRepository {
   constructor(
@@ -67,5 +67,17 @@ export class UserRepository {
       firstName: firstName,
       lastName: lastName,
     });
+  }
+
+  public async findOrCreate(createUserDto: CreateUserDto): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: {
+        providerId: createUserDto.providerId,
+        provider: createUserDto.provider,
+      },
+    });
+    if (user) return user;
+    const newUser = await this.store(createUserDto);
+    return newUser;
   }
 }

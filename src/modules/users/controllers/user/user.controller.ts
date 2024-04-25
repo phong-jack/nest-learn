@@ -16,8 +16,6 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { Response as ResponseType } from 'src/utils/enums/response.enum';
-import { UpdateUsersDto } from '../dtos/UpdateUser.dto';
-import { CreateUsersDto } from '../dtos/CreateUser.dto';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -30,13 +28,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import LocalFilesInterceptor from 'src/interceptors/localFile.interceptor';
 import { UsersService } from '../../services/users.service/users.service';
 import { CloudinaryService } from 'src/modules/cloudinary/cloudinary.service';
-import { SuccessResponse } from 'src/core/http.success.response';
-import { Public } from 'src/modules/auth/decorators/public.decorator';
-import { CreateUserDto } from '../dtos/create-user.dto';
-import { UpdateUserDto } from '../dtos/update-user.dto';
+import { CreateUserDto } from '../../dtos/create-user.dto';
+import { UpdateUserDto } from '../../dtos/update-user.dto';
 import { AccessTokenGuard } from 'src/modules/auth/guards/accessToken.guard';
-import { FullNameInterceptor } from '../../interceptors/fullname.interceptor';
-import { CustomResponeInterceptor } from '../../interceptors/customResponse.interceptor';
+import { CustomResponeInterceptor } from '../../../../interceptors/customResponse.interceptor';
 import { Role } from 'src/modules/auth/interface/user.interface';
 import { Roles } from 'src/modules/auth/decorators/roles.decorator';
 import { RoleGuard } from 'src/modules/auth/guards/role.guard';
@@ -51,8 +46,9 @@ import { Action } from 'src/modules/casl/constant/casl.constant';
 import { User } from '../../entities/user.entity';
 import { ActiveUserGuard } from 'src/modules/auth/guards/activedUser.guard';
 import { ApplyCircuitBreaker } from 'src/interceptors/apply-circuit-breaker.interceptor';
+import { RoleGuardMixin } from 'src/modules/auth/guards/role-mixin.guard';
 
-// @UseGuards(AccessTokenGuard)
+@UseGuards(AccessTokenGuard)
 @ApiBearerAuth()
 @ApiTags('user')
 @Controller('user')
@@ -69,57 +65,61 @@ export class UserController {
     description: 'Get all usersfd sucess!!!!',
   })
   @ApiOperation({ summary: 'Get list user' })
-  @Roles(Role.User)
+  // @Roles(Role.User)
   @ApiCustomResponse({
     message: 'Get user success!',
     statusCode: HttpStatus.OK,
   })
   // @UseGuards(RoleGuard)
-  @UseGuards(PoliciesGuard)
-  @CheckPolicies((ability: AppAbility) => ability.can(Action.Read, User))
+  // @UseGuards(PoliciesGuard)
+  // @CheckPolicies((ability: AppAbility) => ability.can(Action.Read, User))
+  @UseGuards(RoleGuardMixin([Role.Admin]))
   @UseInterceptors(CustomResponeInterceptor)
   public async findAll() {
     return await this.usersService.findAll();
   }
 
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Find user success!',
+  })
+  @ApiOperation({ summary: 'Find a user by id' })
+  @ApiCustomResponse({
+    message: 'Find user success!',
+    statusCode: HttpStatus.OK,
+  })
+  // @UseGuards(RoleGuardMixin([Role.User]))
+  @UseGuards(PoliciesGuard)
+  @CheckPolicies((ability: AppAbility) => ability.can(Action.Read, User))
+  @UseInterceptors(CustomResponeInterceptor)
   @Get(':id')
-  public async findById(
-    @Param('id', ParseIntPipe) id: number,
-    @Res() res: Response,
-  ) {
+  public async findById(@Param('id', ParseIntPipe) id: number) {
     try {
       const user = await this.usersService.findById(id);
-      new SuccessResponse({
-        message: 'Get  user success!',
-        data: user,
-      }).send(res);
+      return user;
     } catch (error) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        type: ResponseType.ERROR,
-        message: error.message,
-        data: null,
-      });
+      throw new BadRequestException(error);
     }
   }
 
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Find user success!',
+  })
+  @ApiOperation({ summary: 'Create new user!' })
+  @ApiCustomResponse({
+    message: 'Create new user success!',
+    statusCode: HttpStatus.CREATED,
+  })
+  @UseGuards(RoleGuardMixin([Role.Admin]))
+  @UseInterceptors(CustomResponeInterceptor)
   @Post('create')
-  public async create(
-    @Res() res: Response,
-    @Body() createUserDto: CreateUserDto,
-  ) {
+  public async create(@Body() createUserDto: CreateUserDto) {
     try {
       const user = await this.usersService.create(createUserDto);
-      return res.status(HttpStatus.CREATED).json({
-        type: ResponseType.SUCCESS,
-        message: 'User has been created successfully!',
-        data: user,
-      });
+      return user;
     } catch (error) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        type: ResponseType.ERROR,
-        message: error.message,
-        data: null,
-      });
+      throw new BadRequestException(error);
     }
   }
 

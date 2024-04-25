@@ -47,7 +47,7 @@ export class CircuitBreaker {
     ) {
       this.state = CIRCUIT_BREAKER_STATE.Open;
       this.lastError = err;
-      this.nextAttempt = Date.now();
+      this.nextAttempt = Date.now() + this.openToHalfOpenWaitTime;
     }
   }
 

@@ -23,9 +23,7 @@ export class CaslAbilityFactory {
     );
     if (user.role === Role.Admin) {
       can(Action.Manage, 'all');
-      can(Action.Read, User);
     }
-    can(Action.Manage, 'all');
     can(Action.Update, User, { id: user.id });
     can(Action.Read, User, { id: user.id });
     cannot(Action.Delete, User, { role: Role.User });

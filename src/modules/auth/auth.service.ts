@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../users/services/users.service/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from '../users/controllers/dtos/create-user.dto';
+import { CreateUserDto } from '../users/dtos/create-user.dto';
 import argon2 from 'argon2';
 import { ConfigService } from '@nestjs/config';
 import { SignInDto } from './dtos/SignIn.dto';
@@ -14,6 +14,7 @@ import { UserCreatedEvent } from './events/user-created.event';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { SendMailDto } from '../mail/dtos/send-mail.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -205,5 +206,16 @@ export class AuthService {
     } catch (error) {
       throw new Error('Error decoding token');
     }
+  }
+
+  async loginGithub(user: User) {
+    const tokens = await this.getTokens(
+      user.id,
+      user.username,
+      user.role,
+      user.isActive,
+    );
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+    return tokens;
   }
 }

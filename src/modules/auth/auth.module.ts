@@ -9,6 +9,7 @@ import { MailModule } from '../mail/mail.module';
 import { UserCreatedListener } from './listeners/user-created.listener';
 import { BullModule } from '@nestjs/bullmq';
 import { AuthProcessor } from './auth.processor';
+import { GithubStrategy } from './strategies/github.strategy';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AuthProcessor } from './auth.processor';
     JwtService,
     UserCreatedListener,
     AuthProcessor,
+    GithubStrategy,
   ],
 })
 export class AuthModule {}
